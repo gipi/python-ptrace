@@ -160,6 +160,14 @@ class ProcessSignal(ProcessEvent):
         else:
             return None
 
+    def dumpRegisters(self, log=None):
+        regs = self.process.getregs()
+        regs_names = [reg_name for reg_name, type_value in regs._fields_]
+        regs_names.sort()
+
+        for reg_name in regs_names:
+            log(f"{reg_name:<10}{getattr(regs, reg_name):>16x}")
+
     def memoryFault(self):
         # Get fault
         siginfo = self.getSignalInfo()
@@ -219,6 +227,10 @@ class ProcessSignal(ProcessEvent):
         else:
             self.reason = ChildExit()
 
+    def dumpMappings(self, log):
+        for map in self.process.readMappings():
+            log(str(map))
+
     def display(self, log=None):
         self._analyze()
         if not log:
@@ -228,4 +240,6 @@ class ProcessSignal(ProcessEvent):
         log("Signal: %s" % self.name)
         if self.reason:
             self.reason.display(log)
+        self.dumpRegisters(log=log)
+        self.dumpMappings(log)
         log("-" * 60)
