@@ -729,8 +729,9 @@ class PtraceProcess(object):
         info("Set %s options to %s" % (self, options))
         ptrace_setoptions(self.pid, options)
 
-    def waitEvent(self):
-        return self.debugger.waitProcessEvent(pid=self.pid)
+    def waitEvent(self, blocking: bool = True):
+        """Wait for an event from this process."""
+        return self.debugger.waitProcessEvent(pid=self.pid, blocking=blocking)
 
     def waitSignals(self, *signals):
         return self.debugger.waitSignals(*signals, pid=self.pid)
